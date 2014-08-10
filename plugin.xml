@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="com.cranberrygame.phonegap.plugin.ad.adduplex"
+    version="1.0.1">
+	
+    <name>AdDuplex</name>
+    <description>AdDuplex</description>
+    <license>MIT</license>
+    <keywords>phonegap, adduplex</keywords>
+    <repo>https://github.com/cranberrygame/com.cranberrygame.phonegap.plugin.ad.adduplex</repo>
+ 	
+    <js-module src="www/adduplex.js">
+        <clobbers target="window.adduplex" />
+    </js-module>
+	
+    <!-- wp8 -->
+    <platform name="wp8">
+<!--	
+		<config-file target="Properties/WMAppManifest.xml" parent="/Deployment/App/Capabilities">
+			<Capability Name="ID_CAP_IDENTITY_USER" />
+			<Capability Name="ID_CAP_NETWORKING" />
+			<Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
+			<Capability Name="ID_CAP_PHONEDIALER" />
+			<Capability Name="ID_CAP_MEDIALIB_PHOTO" />
+        </config-file>
+-->		
+        <config-file target="config.xml" parent="/*">
+            <feature name="AdDuplex">
+                <param name="wp-package" value="AdDuplex"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/wp8/AdDuplex.cs" />
+    </platform>
+
+</plugin>
