@@ -1,2 +1,2 @@
 
-# com.cranberrygame.phonegap.plugin.ad.adduplex
+# com.cranberrygame.cordova.plugin.ad.adduplex
