@@ -1,11 +1,7 @@
-﻿// Copyright (c) 2014 cranberrygame
-// Email: cranberrygame@yahoo.com
-// Phonegap plugin: http://www.github.com/cranberrygame
-// Construct2 phonegap plugin: https://www.scirra.com/forum/viewtopic.php?f=153&t=109586
-//                             https://dl.dropboxusercontent.com/u/186681453/index.html
-//                             https://www.scirra.com/users/cranberrygame
-// Facebook: https://www.facebook.com/profile.php?id=100006204729846
-// License: MIT (http://opensource.org/licenses/MIT)
+﻿//Copyright (c) 2014 Sang Ki Kwon (Cranberrygame)
+//Email: cranberrygame@yahoo.com
+//Homepage: http://cranberrygame.github.io
+//License: MIT (http://opensource.org/licenses/MIT)
 using System.Windows;
 using System.Runtime.Serialization;
 using WPCordovaClassLib.Cordova;
@@ -22,83 +18,163 @@ namespace Cordova.Extension.Commands
 {
     public class AdDuplex : BaseCommand
     {
+        //
+        public string email;
+        public string licenseKey;
+        public bool validLicenseKey;
+        protected string TEST_APP_KEY = "";
+        protected string TEST_AD_UNIT_ID = "";
+        //
+        private string appKey;
+        private string adUnitId;
+        private bool isOverlap;
+        private bool isTest;
+        //
+        private string previousBannerPosition;
+        private string previousBannerSize;
+        private int lastOrientation;
+        //
+        public bool bannerAdPreload;
+        //
         private AdControl bannerView;
         private Grid bannerGrid;
 
+        public void setLicenseKey(string args)
+        {
+            string email = JsonHelper.Deserialize<string[]>(args)[0];
+            string licenseKey = JsonHelper.Deserialize<string[]>(args)[1];
+            Debug.WriteLine("email: " + email);
+            Debug.WriteLine("licenseKey: " + licenseKey);
+
+            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _setLicenseKey(email, licenseKey);
+            });
+        }
+
+        public void setUp(string args)
+        {
+            //string bannerAdUnit = JsonHelper.Deserialize<string[]>(args)[0];
+            //string fullScreenAdUnit = JsonHelper.Deserialize<string[]>(args)[1];
+            //bool isOverlap = Convert.ToBoolean(JsonHelper.Deserialize<string[]>(args)[2]);
+            //bool isTest = Convert.ToBoolean(JsonHelper.Deserialize<string[]>(args)[3]);
+            //Debug.WriteLine("bannerAdUnit: " + bannerAdUnit);
+            //Debug.WriteLine("fullScreenAdUnit: " + fullScreenAdUnit);
+            //Debug.WriteLine("isOverlap: " + isOverlap);
+            //Debug.WriteLine("isTest: " + isTest);			
+            string appKey = JsonHelper.Deserialize<string[]>(args)[0];
+            string adUnitId = JsonHelper.Deserialize<string[]>(args)[1];
+            bool isOverlap = true; //Convert.ToBoolean(JsonHelper.Deserialize<string[]>(args)[2]);
+            bool isTest = false; // Convert.ToBoolean(JsonHelper.Deserialize<string[]>(args)[3]);
+            Debug.WriteLine("appKey: " + appKey);
+            Debug.WriteLine("adUnitId: " + adUnitId);
+            Debug.WriteLine("isOverlap: " + isOverlap);
+            Debug.WriteLine("isTest: " + isTest);
+
+            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _setUp(appKey, adUnitId, isOverlap, isTest);
+            });
+        }
+		
         public void preloadBannerAd(string args)
         {
-            string appId = JsonHelper.Deserialize<string[]>(args)[0];
-            Debug.WriteLine("appId: " + appId);
+            string appKey = JsonHelper.Deserialize<string[]>(args)[0];
+            string adUnitId = JsonHelper.Deserialize<string[]>(args)[1];
+            Debug.WriteLine("appKey: " + appKey);
+            Debug.WriteLine("adUnitId: " + adUnitId);
            
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {   
-                _preloadBannerAd(appId);
-                
-				DispatchCommandResult(new PluginResult(PluginResult.Status.OK));			
-				//DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR));
+                _preloadBannerAd();
             });
         }
         public void showBannerAd(string args)
         {
-            string appId = JsonHelper.Deserialize<string[]>(args)[0];
-            Debug.WriteLine("appId: " + appId);
-			string position=JsonHelper.Deserialize<string[]>(args)[1];
+			string position=JsonHelper.Deserialize<string[]>(args)[0];
 			Debug.WriteLine(position);
 
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
-                _showBannerAd(appId, position);
-
-				DispatchCommandResult(new PluginResult(PluginResult.Status.OK));			
-				//DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR));
+                _showBannerAd(position);
             });
         }
+        public void reloadBannerAd(string args)
+        {
+            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _reloadBannerAd();
+            });					
+        }		
         public void hideBannerAd(string args)
         {
-            //this.adUnit = JsonHelper.Deserialize<string[]>(args)[0];
-            //Debug.WriteLine("adUnit: " + adUnit);
-
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
                 _hideBannerAd();
-
-				DispatchCommandResult(new PluginResult(PluginResult.Status.OK));			
-				//DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR));
             });	
         }
-        public void refreshBannerAd(string args)
+		
+ 		//
+        private void _setLicenseKey(string email, string licenseKey)
         {
-            //this.adUnit = JsonHelper.Deserialize<string[]>(args)[0];
-            //Debug.WriteLine("adUnit: " + adUnit);
+            this.email = email;
+            this.licenseKey = licenseKey;
 
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
-            {
-                _refreshBannerAd();
+            /*
+                    //
+                    String str1 = Util.md5("cordova-plugin-: " + email);
+                    String str2 = Util.md5("cordova-plugin-ad-admob: " + email);
+                    String str3 = Util.md5("com.cranberrygame.cordova.plugin.: " + email);
+                    String str4 = Util.md5("com.cranberrygame.cordova.plugin.ad.admob: " + email);
+                    if(licenseKey != null && (licenseKey.equalsIgnoreCase(str1) || licenseKey.equalsIgnoreCase(str2) || licenseKey.equalsIgnoreCase(str3) || licenseKey.equalsIgnoreCase(str4))) {
+                        Log.d(LOG_TAG, String.format("%s", "valid licenseKey"));
+                        this.validLicenseKey = true;
+                    }
+                    else {
+                        Log.d(LOG_TAG, String.format("%s", "invalid licenseKey"));
+                        this.validLicenseKey = false;
+			
+                        //Util.alert(plugin.getCordova().getActivity(),"Cordova Admob: invalid email / license key. You can get free license key from https://play.google.com/store/apps/details?id=com.cranberrygame.pluginsforcordova");			
+                    }
+            */
+        }
 
-				DispatchCommandResult(new PluginResult(PluginResult.Status.OK));			
-				//DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR));
-            });					
-        }		
- 		//---------------------------
-        private void _preloadBannerAd(string appId)
+        private void _setUp(string appKey, string adUnitId, bool isOverlap, bool isTest)
+        {
+            /*
+                        if (!validLicenseKey) {
+                            if (new Random().nextInt(100) <= 1) {//0~99					
+                                bannerAdUnit = TEST_BANNER_AD_UNIT;
+                                fullScreenAdUnit = TEST_FULL_SCREEN_AD_UNIT;
+                            }
+                        }
+            */
+        }
+		
+        private void _preloadBannerAd()
+        {
+			loadBannerAd();
+        }
+		
+        private void loadBannerAd()
         {
             if (bannerView == null)
             {
                 bannerView = new AdControl();
-                bannerView.AppId = appId;
+                bannerView.AppId = "AppId";
+                //bannerView.AppKey = appKey;//build error
+                //bannerView.AdUnitId = adUnitId;//build error				
                 bannerView.Width = 480;
                 bannerView.Height = 80;
                 bannerView.AdLoaded += bannerView_AdLoaded;
                 bannerView.AdLoadingError += bannerView_AdLoadingError;
                 //bannerView.RefreshInterval = 30;
-            }
-        }
-        private void _showBannerAd(string appId, string position)
+            }		
+		}
+		
+        private void _showBannerAd(string position)
         {
-            if (bannerView == null)
-            {
-                _preloadBannerAd(appId);
-            }
+            loadBannerAd();
 
             _hideBannerAd();
 
@@ -127,6 +203,12 @@ namespace Cordova.Extension.Commands
                 }
             }
         }
+        private void _reloadBannerAd()
+        {
+            if (bannerView != null)
+            {
+            }
+        }
         private void _hideBannerAd()
         {
             if (bannerView != null)
@@ -148,12 +230,6 @@ namespace Cordova.Extension.Commands
                         }
                     }
                 }
-            }
-        }
-        private void _refreshBannerAd()
-        {
-            if (bannerView != null)
-            {
             }
         }
 

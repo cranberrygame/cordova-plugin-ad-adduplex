@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-ad-adduplex"
-    version="1.0.21">
+    version="1.0.23">
 	
     <name>AdDuplex</name>
     <description>AdDuplex</description>
@@ -10,21 +10,40 @@
     <keywords>cordova,adduplex</keywords>
     <repo>https://github.com/cranberrygame/cordova-plugin-ad-adduplex</repo>
  	
-    <js-module src="www/adduplex.js">
+    <js-module src="www/adduplex.js" name="adduplex">
         <clobbers target="window.adduplex" />
     </js-module>
 	
+	<!-- windows -->
+    <platform name="windows">
+
+	<!-- windows8.0 winjs -->
+		<!--lib-file src="AdDuplexWindows, Version=8.0.5.1" target="win" /-->
+		<framework src="src/windows/AdDuplex.WinRT.winmd" custom="true" target="win"/>
+		<source-file src="src/windows/AdControl.js" target-dir="www/AdDuplex/js" target="win" />
+		<!-- windows8.1 winjs universal -->
+		<!--lib-file src="" target="win" /-->
+		<!--framework src="src/windows/AdDuplex.Universal.Controls.Win.XAML.winmd" custom="true" target="win" /-->
+		<!--framework src="src/windows/AdDuplex.Universal.Win.WinRT.winmd" custom="true" target="win" /-->
+    </platform>
+<!-- 
+//SDK ID: AdDuplexWindows, Version=8.0.5.1
+//Path: C:\Program Files (x86)\Microsoft SDKs\Windows\v8.0\ExtensionSDKs\AdDuplexWindows\8.0.5.1\
+//App Package Version: 8.0.5.1//D:\share\cordova_test\windowstest\platforms\windows\CordovaApp.Windows80.jsproj
+//http://cordova.apache.org/docs/en/5.0.0/plugin_ref_spec.md.html
+...
+  <ItemGroup>
+    <SDKReference Include="AdDuplexWindows, Version=8.0.5.1" />
+  </ItemGroup>	
+</Project>
+-->	
     <!-- wp8 -->
     <platform name="wp8">
-<!--	
 		<config-file target="Properties/WMAppManifest.xml" parent="/Deployment/App/Capabilities">
-			<Capability Name="ID_CAP_IDENTITY_USER" />
 			<Capability Name="ID_CAP_NETWORKING" />
 			<Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
-			<Capability Name="ID_CAP_PHONEDIALER" />
-			<Capability Name="ID_CAP_MEDIALIB_PHOTO" />
         </config-file>
--->		
+		
         <config-file target="config.xml" parent="/*">
             <feature name="AdDuplex">
                 <param name="wp-package" value="AdDuplex"/>
@@ -32,6 +51,21 @@
         </config-file>
 
         <source-file src="src/wp8/AdDuplex.cs" />
+		
+		<!--lib-file src="AdDuplex.WindowsPhone" /-->
+		<framework src="src/wp8/AdDuplexWP8.9.0.0.6/lib/wp8/AdDuplex.WindowsPhone.dll" custom="true" />
+<!--
+//SDK ID: 
+//Path: 
+//App Package Version: 
+//D:\share\cordova_test\windowstest\platforms\wp8\windowstest.csproj
+...
+  <ItemGroup>
+    <Reference Include="AdDuplex.WindowsPhone">
+      <HintPath>packages\AdDuplexWP8.9.0.0.6\lib\wp8\AdDuplex.WindowsPhone.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
+-->
     </platform>
-
 </plugin>
